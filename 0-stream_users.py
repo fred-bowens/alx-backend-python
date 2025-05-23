@@ -23,3 +23,39 @@ def stream_users():
 if __name__ == "__main__":
     for user in stream_users():
         print(user)
+
+
+import mysql.connector
+
+# Configuration
+DB_HOST = 'localhost'
+DB_USER = 'root'
+DB_PASSWORD = 'your_password'
+DB_NAME = 'ALX_prodev'
+TABLE_NAME = 'user_data'
+
+def stream_users():
+    """Generator function to stream users from the database one by one"""
+    try:
+        connection = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(f"SELECT * FROM {TABLE_NAME}")
+        for row in cursor:
+            yield row
+
+        cursor.close()
+        connection.close()
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return
+
+# Example usage
+if __name__ == "__main__":
+    for user in stream_users():
+        print(user)
