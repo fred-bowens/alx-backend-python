@@ -34,3 +34,50 @@ def calculate_average_age():
 
 if __name__ == "__main__":
     calculate_average_age()
+
+
+import mysql.connector
+
+# Configuration
+DB_HOST = 'localhost'
+DB_USER = 'root'
+DB_PASSWORD = 'your_password'
+DB_NAME = 'ALX_prodev'
+TABLE_NAME = 'user_data'
+
+def stream_user_ages():
+    """Generator that yields user ages one by one"""
+    try:
+        connection = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT age FROM {TABLE_NAME}")
+        for (age,) in cursor:
+            yield float(age)  # cast to float for average
+        cursor.close()
+        connection.close()
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return
+
+def calculate_average_age():
+    """Uses the age generator to calculate and print the average age"""
+    total = 0
+    count = 0
+    for age in stream_user_ages():  # 1st and only loop
+        total += age
+        count += 1
+
+    if count == 0:
+        print("No users found.")
+    else:
+        average = total / count
+        print(f"Average age of users: {average:.2f}")
+
+# Execute
+if __name__ == "__main__":
+    calculate_average_age()
