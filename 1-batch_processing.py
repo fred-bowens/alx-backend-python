@@ -36,3 +36,48 @@ if __name__ == "__main__":
     batch_size = 5  # Adjust batch size as needed
     for user in batch_processing(batch_size):
         print(user)
+
+
+import mysql.connector
+
+# Configuration
+DB_HOST = 'localhost'
+DB_USER = 'root'
+DB_PASSWORD = 'your_password'
+DB_NAME = 'ALX_prodev'
+TABLE_NAME = 'user_data'
+
+def stream_users_in_batches(batch_size):
+    """Generator that yields rows in batches from the user_data table"""
+    try:
+        connection = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(f"SELECT * FROM {TABLE_NAME}")
+
+        while True:
+            batch = cursor.fetchmany(batch_size)
+            if not batch:
+                break
+            yield batch
+
+        cursor.close()
+        connection.close()
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+
+def batch_processing(batch_size):
+    """Process each batch to filter users over age 25"""
+    for batch in stream_users_in_batches(batch_size):
+        filtered = [user for user in batch if user['age'] > 25]
+        yield filtered
+
+# Example usage
+if __name__ == "__main__":
+    for filtered_batch in batch_processing(2):
+        for user in filtered_batch:
+            print(user)
