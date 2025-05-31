@@ -111,4 +111,19 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     def test_public_repos_with_license(self):
         client = GithubOrgClient("testorg")
-        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
+        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos
+
+
+        9.def test_public_repos(self):
+    """
+    Test that public_repos returns all repository names as expected.
+    """
+    client = GithubOrgClient("testorg")
+    self.assertEqual(client.public_repos(), self.expected_repos)
+
+def test_public_repos_with_license(self):
+    """
+    Test that public_repos returns only repositories matching the given license.
+    """
+    client = GithubOrgClient("testorg")
+    self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
