@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Message
 
+
 def message_detail(request, message_id):
     message = get_object_or_404(Message, pk=message_id)
     history = message.history.all().order_by('-edited_at')
@@ -8,3 +9,9 @@ def message_detail(request, message_id):
         'message': message,
         'history': history
     })  
+
+
+def inbox_view(request):
+    user = request.user
+    unread_messages = Message.unread.for_user(user)
+    return render(request, 'inbox.html', {'unread_messages': unread_messages})
