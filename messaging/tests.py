@@ -10,3 +10,11 @@ msg = Message.objects.create(sender=alice, receiver=bob, content="Hello Bob!")
 
 
 Notification.objects.filter(user=bob).exists()
+
+from messaging.models import Message
+
+msg = Message.objects.create(sender=alice, receiver=bob, content="Hello Bob!")
+msg.content = "Hi Bob, how are you?"
+msg.save()
+
+msg.history.all().values('old_content', 'edited_at')
