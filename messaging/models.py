@@ -39,3 +39,20 @@ class MessageHistory(models.Model):
 
     def __str__(self):
         return f"History of Message ID {self.message.id} at {self.edited_at}"
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)  
+
+    objects = models.Manager()  
+    unread = 'UnreadMessagesManager'
+
+  class Message(models.Model):
+    
+    read = models.BooleanField(default=False)
+
+    objects = models.Manager()  
+    unread = UnreadMessagesManager()
