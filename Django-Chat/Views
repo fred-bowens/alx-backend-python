@@ -13,3 +13,25 @@ def delete_user(request):
         messages.success(request, "Your account has been deleted.")
         return redirect("home")
     return render(request, "accounts/delete_confirm.html")
+
+def message_list(request):
+    messages = Message.objects.filter(parent_message__isnull=True) \
+        .select_related('sender', 'receiver') \
+        .prefetch_related('replies__sender', 'replies__receiver')
+
+    return render(request, 'messaging/message_list.html', {
+        'messages': messages
+    })
+
+
+
+def message_thread_view(request):
+    top_messages = Message.objects.filter(parent_message__isnull=True) \
+        .prefetch_related('replies__replies__sender') \
+        .select_related('sender', 'receiver')
+
+    threads = [build_message_tree(msg) for msg in top_messages]
+
+    return render(request, 'messaging/threaded_view.html', {
+        'threads': threads
+    })
