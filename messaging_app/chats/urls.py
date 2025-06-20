@@ -28,5 +28,20 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('chats.urls')),  # This includes the DRF router
+    path('api/', include('chats.urls')),  
+]
+
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from chats.views import ConversationViewSet, MessageViewSet
+
+router = DefaultRouter()
+
+router.register(r'conversations', ConversationViewSet, basename='conversation')
+router.register(r'messages', MessageViewSet, basename='message')
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),  # Include the router-generated URLs under the 'api/' path
 ]
