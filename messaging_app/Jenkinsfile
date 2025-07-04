@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS_ID = 'github-creds'
+        GIT_CREDENTIALS_ID = 'fred-bowens'
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
+        DOCKER_IMAGE_NAME = 'yourdockerhubusername/messaging-app'
     }
 
     stages {
@@ -14,24 +16,37 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // ShiningPanda provides python virtualenv
-                withPythonEnv('python3') {
-                    sh 'pip install -r requirements.txt'
-                }
+                sh 'pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                withPythonEnv('python3') {
-                    sh 'pytest --junitxml=test-results.xml'
-                }
+                sh 'pytest --junitxml=test-results.xml'
             }
         }
 
         stage('Publish Report') {
             steps {
                 junit 'test-results.xml'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE_NAME}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDENTIALS}") {
+                        dockerImage.push('latest')
+                    }
+                }
             }
         }
     }
