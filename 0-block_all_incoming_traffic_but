@@ -3,7 +3,19 @@ sudo apt install -y ufw
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow 22/tcp
+sudo ufw allow 8080/tcp
 sudo ufw allow 80/tcp
+sudo ufw reload
+sudo netstat -lpn | grep :80
+curl -sI http://localhost:8080
 sudo ufw allow 443/tcp
 sudo ufw enable
 sudo ufw status verbose
+sudo nano /etc/ufw/before.rules
+nat
+:PREROUTING ACCEPT [0:0]
+
+-A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-port 80
+
+COMMIT
+sudo cp /etc/ufw/before.rules ~/ufw_before.rules
