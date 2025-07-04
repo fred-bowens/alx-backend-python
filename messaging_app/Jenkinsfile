@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_CREDENTIALS_ID = 'github-creds'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: "${env.GIT_CREDENTIALS_ID}", url: 'https://github.com/fred-bowens/messaging-app.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // ShiningPanda provides python virtualenv
+                withPythonEnv('python3') {
+                    sh 'pip install -r requirements.txt'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                withPythonEnv('python3') {
+                    sh 'pytest --junitxml=test-results.xml'
+                }
+            }
+        }
+
+        stage('Publish Report') {
+            steps {
+                junit 'test-results.xml'
+            }
+        }
+    }
+}
